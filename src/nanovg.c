@@ -23,6 +23,12 @@
 #include "fontstash.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+// KLK next 5 lines
+#include <GLFW/glfw3.h>
+#define  NANOVG_GL3_IMPLEMENTATION
+#include "nanovg_gl.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../example/stb_image_write.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4100)  // unreferenced formal parameter
@@ -288,7 +294,7 @@ void nvgBeginFrame(struct NVGcontext* ctx, int windowWidth, int windowHeight, fl
 	nvgReset(ctx);
 
 	nvg__setDevicePixelRatio(ctx, devicePixelRatio);
-	
+
 	ctx->params.renderViewport(ctx->params.userPtr, windowWidth, windowHeight);
 
 	ctx->drawCallCount = 0;
@@ -383,7 +389,7 @@ struct NVGcolor nvgLerpRGBA(struct NVGcolor c0, struct NVGcolor c1, float u)
 	{
 		cint.rgba[i] = c0.rgba[i] * oneminu + c1.rgba[i] * u;
 	}
-	 
+
 	return cint;
 }
 
@@ -1123,7 +1129,7 @@ static void nvg__tesselateBezier(struct NVGcontext* ctx,
 {
 	float x12,y12,x23,y23,x34,y34,x123,y123,x234,y234,x1234,y1234;
 	float dx,dy,d2,d3;
-	
+
 	if (level > 10) return;
 
 	x12 = (x1+x2)*0.5f;
@@ -1155,8 +1161,8 @@ static void nvg__tesselateBezier(struct NVGcontext* ctx,
 	x1234 = (x123+x234)*0.5f;
 	y1234 = (y123+y234)*0.5f;
 
-	nvg__tesselateBezier(ctx, x1,y1, x12,y12, x123,y123, x1234,y1234, level+1, 0); 
-	nvg__tesselateBezier(ctx, x1234,y1234, x234,y234, x34,y34, x4,y4, level+1, type); 
+	nvg__tesselateBezier(ctx, x1,y1, x12,y12, x123,y123, x1234,y1234, level+1, 0);
+	nvg__tesselateBezier(ctx, x1234,y1234, x234,y234, x34,y34, x4,y4, level+1, type);
 }
 
 static void nvg__flattenPaths(struct NVGcontext* ctx)
@@ -1554,7 +1560,7 @@ static void nvg__calculateJoins(struct NVGcontext* ctx, float w, int lineJoin, f
 
 
 static int nvg__expandStroke(struct NVGcontext* ctx, float w, int lineCap, int lineJoin, float miterLimit)
-{	
+{
 	struct NVGpathCache* cache = ctx->cache;
 	struct NVGvertex* verts;
 	struct NVGvertex* dst;
@@ -1818,7 +1824,7 @@ void nvgQuadTo(struct NVGcontext* ctx, float cx, float cy, float x, float y)
 {
     float x0 = ctx->commandx;
     float y0 = ctx->commandy;
-    float vals[] = { NVG_BEZIERTO, 
+    float vals[] = { NVG_BEZIERTO,
         x0 + 2.0f/3.0f*(cx - x0), y0 + 2.0f/3.0f*(cy - y0),
         x + 2.0f/3.0f*(cx - x), y + 2.0f/3.0f*(cy - y),
         x, y };
@@ -1900,7 +1906,7 @@ void nvgArc(struct NVGcontext* ctx, float cx, float cy, float r, float a0, float
 	float px = 0, py = 0, ptanx = 0, ptany = 0;
 	float vals[3 + 5*7 + 100];
 	int i, ndivs, nvals;
-	int move = ctx->ncommands > 0 ? NVG_LINETO : NVG_MOVETO; 
+	int move = ctx->ncommands > 0 ? NVG_LINETO : NVG_MOVETO;
 
 	// Clamp angles
 	da = a1 - a0;
@@ -2293,7 +2299,7 @@ float nvgText(struct NVGcontext* ctx, float x, float y, const char* string, cons
 		}
 	}
 
-	// TODO: add back-end bit to do this just once per frame. 
+	// TODO: add back-end bit to do this just once per frame.
 	nvg__flushTextTexture(ctx);
 
 	nvg__renderText(ctx, verts, nverts);

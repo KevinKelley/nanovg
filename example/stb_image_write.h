@@ -29,7 +29,7 @@ USAGE:
      int stbi_write_tga(char const *filename, int w, int h, int comp, const void *data);
 
    Each function returns 0 on failure and non-0 on success.
-   
+
    The functions create an image file defined by the parameters. The image
    is a rectangle of pixels stored from left-to-right, top-to-bottom.
    Each pixel contains 'comp' channels of data stored interleaved with 8-bits
@@ -42,7 +42,7 @@ USAGE:
    PNG creates output files with the same number of components as the input.
    The BMP and TGA formats expand Y to RGB in the file format. BMP does not
    output alpha.
-   
+
    PNG supports writing rectangles of data even when the bytes storing rows of
    data are not consecutive in memory (e.g. sub-rectangles of a larger image),
    by supplying the stride between the beginning of adjacent rows. The other
@@ -115,7 +115,7 @@ static void write_pixels(FILE *f, int rgb_dir, int vdir, int x, int y, int comp,
    if (y <= 0)
       return;
 
-   if (vdir < 0) 
+   if (vdir < 0)
       j_end = -1, j = y-1;
    else
       j_end =  y, j = 0;
@@ -283,7 +283,7 @@ unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, int *out_l
 
    i=0;
    while (i < data_len-3) {
-      // hash next 3 bytes of data to be compressed 
+      // hash next 3 bytes of data to be compressed
       int h = stbi__zhash(data+i)&(stbi__ZHASH-1), best=3;
       unsigned char *bestloc = 0;
       unsigned char **hlist = hash_table[h];
@@ -388,7 +388,7 @@ static void stbi__wpcrc(unsigned char **data, int len)
    stbi__wp32(*data, crc);
 }
 
-static unsigned char stbi__paeth(int a, int b, int c)
+static unsigned char stbi__paeth_uc(int a, int b, int c)
 {
    int p = a + b - c, pa = abs(p-a), pb = abs(p-b), pc = abs(p-c);
    if (pa <= pb && pa <= pc) return (unsigned char) a;
@@ -424,7 +424,7 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
                   case 1: line_buffer[i] = z[i]; break;
                   case 2: line_buffer[i] = z[i] - z[i-stride_bytes]; break;
                   case 3: line_buffer[i] = z[i] - (z[i-stride_bytes]>>1); break;
-                  case 4: line_buffer[i] = (signed char) (z[i] - stbi__paeth(0,z[i-stride_bytes],0)); break;
+                  case 4: line_buffer[i] = (signed char) (z[i] - stbi__paeth_uc(0,z[i-stride_bytes],0)); break;
                   case 5: line_buffer[i] = z[i]; break;
                   case 6: line_buffer[i] = z[i]; break;
                }
@@ -434,9 +434,9 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
                   case 1: line_buffer[i] = z[i] - z[i-n]; break;
                   case 2: line_buffer[i] = z[i] - z[i-stride_bytes]; break;
                   case 3: line_buffer[i] = z[i] - ((z[i-n] + z[i-stride_bytes])>>1); break;
-                  case 4: line_buffer[i] = z[i] - stbi__paeth(z[i-n], z[i-stride_bytes], z[i-stride_bytes-n]); break;
+                  case 4: line_buffer[i] = z[i] - stbi__paeth_uc(z[i-n], z[i-stride_bytes], z[i-stride_bytes-n]); break;
                   case 5: line_buffer[i] = z[i] - (z[i-n]>>1); break;
-                  case 6: line_buffer[i] = z[i] - stbi__paeth(z[i-n], 0,0); break;
+                  case 6: line_buffer[i] = z[i] - stbi__paeth_uc(z[i-n], 0,0); break;
                }
             }
             if (p) break;
@@ -455,7 +455,7 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
    if (!zlib) return 0;
 
    // each tag requires 12 bytes of overhead
-   out = (unsigned char *) malloc(8 + 12+13 + 12+zlen + 12); 
+   out = (unsigned char *) malloc(8 + 12+13 + 12+zlen + 12);
    if (!out) return 0;
    *out_len = 8 + 12+13 + 12+zlen + 12;
 
